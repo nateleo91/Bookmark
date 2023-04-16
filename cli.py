@@ -1,22 +1,30 @@
 from models import Bookmark
+from prettytable import PrettyTable
 
 def add_bookmark():
-    title = input("Enter the title: ")
+    name = input("Enter the name: ")
     url = input("Enter the URL: ")
 
-    bookmark = Bookmark(title=title, url=url)
+    bookmark = Bookmark(name=name, url=url)
     bookmark.save()
 
     print("Bookmark saved.")
 
 def list_bookmarks():
-    for bookmark in Bookmark.select():
-        print(f"{bookmark.title}: {bookmark.url}")
+    bookmarks = Bookmark.select()
+    if bookmarks.exists():
+        table = PrettyTable(['Name', 'URL'])
+        for bookmark in bookmarks:
+            table.add_row([bookmark.name, bookmark.url])
+        print(table)
+    else:
+        print('No bookmarks found.')
+
 
 def delete_bookmark():
-    title = input("Enter the title of the bookmark to delete: ")
+    name = input("Enter the name of the bookmark to delete: ")
 
-    bookmark = Bookmark.get(Bookmark.title == title)
+    bookmark = Bookmark.get(Bookmark.name == name)
     bookmark.delete_instance()
 
     print("Bookmark deleted.")
@@ -24,10 +32,10 @@ def delete_bookmark():
 def search_bookmarks():
     query = input("Enter the search query: ")
 
-    bookmarks = Bookmark.select().where(Bookmark.title.contains(query) | Bookmark.url.contains(query))
+    bookmarks = Bookmark.select().where(Bookmark.name.contains(query))
 
     for bookmark in bookmarks:
-        print(f"{bookmark.title}: {bookmark.url}")
+        print(f"{bookmark.name}: {bookmark.url}")
 
 if __name__ == '__main__':
     while True:
